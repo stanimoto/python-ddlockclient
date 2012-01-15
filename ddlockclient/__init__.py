@@ -129,7 +129,7 @@ class DDLockClient():
         return sock
 
     def trylock(self, name, timeout=None):
-        return self._trylock_guranteed(name, timeout)
+        return self._trylock_wait(name, timeout)
 
     def _trylock(self, name):
         lock = None
@@ -142,7 +142,7 @@ class DDLockClient():
 
         return lock
 
-    def _trylock_guranteed(self, name, timeout=None):
+    def _trylock_wait(self, name, timeout=None):
         lock = None
         try_until = time.time()
         if timeout is not None:
