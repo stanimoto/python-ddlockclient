@@ -1,0 +1,5 @@
+*.pyc
+/DDLockClient.egg-info
+/build
+/dist
+/env
