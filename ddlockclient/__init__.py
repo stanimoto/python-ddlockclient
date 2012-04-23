@@ -25,7 +25,7 @@ class DDLockError(Exception):
         return repr(self.msg)
 
 
-class DDLock():
+class DDLock(object):
     def __init__(self, client, name, servers=[]):
         self.client = client
         self.name = name
@@ -100,7 +100,7 @@ class DDLock():
             pass
 
 
-class DDLockClient():
+class DDLockClient(object):
     servers = []
     sockcache = {}
     errmsg = ""
