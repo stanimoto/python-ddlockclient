@@ -11,4 +11,12 @@ setup(
     url = 'http://github.com/stanimoto/python-ddlockclient',
     packages = ['ddlockclient'],
     license='Apache',
+    tests_require=['coverage', 'nose', 'unittest2', 'pep8'],
+    classifiers = [
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2.6',
+        'License :: OSI Approved :: Apache Software License',
+        ]
 )
