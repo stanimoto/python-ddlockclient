@@ -8,7 +8,7 @@ DEFAULT_PORT = 7002
 
 
 def eurl_repl(m):
-    return "%%%02X" % ord(m)
+    return "%%%02X" % ord(m.group(1))
 
 
 def eurl(name):
