@@ -3,6 +3,7 @@ import re
 from ddlockclient import DDLockClient, DDLock, eurl
 
 servers = ['localhost']
+servers = ['sh-ddlock001.dev.sixapart.com:7002', 'sh-ddlock002.dev.sixapart.com:7002']
 
 
 class TestError(Exception):
