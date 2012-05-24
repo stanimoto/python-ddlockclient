@@ -1,6 +1,6 @@
 import unittest
 import re
-from ddlockclient import DDLockClient, DDLock
+from ddlockclient import DDLockClient, DDLock, eurl
 
 servers = ['localhost']
 
@@ -87,3 +87,9 @@ class ClientTest(unittest.TestCase):
         lock = self._lock('test')
         self.assertTrue(isinstance(lock, DDLock),
                         "able to lock 'test' again")
+
+    def test_eurl(self):
+        name = eurl('foo|bar')
+        self.assertEqual(name, "foo%7Cbar")
+        name = eurl('foo|bar/baz')
+        self.assertEqual(name, "foo%7Cbar%2Fbaz")
