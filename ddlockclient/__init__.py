@@ -39,7 +39,9 @@ class DDLock(object):
                 sock = self.client.get_sock(addr)
                 if not sock:
                     continue
-                sock.send("releaselock lock=%s\r\n" % eurl(self.name))
+                sock['socket'].send("releaselock lock=%s\r\n" \
+                    % eurl(self.name))
+                sock['file'].readline()
             raise DDLockError(msg)
 
         for server in servers:
@@ -52,8 +54,8 @@ class DDLock(object):
             if not sock:
                 continue
 
-            sock.send("trylock lock=%s\r\n" % eurl(self.name))
-            data = sock.recv(1024)
+            sock['socket'].send("trylock lock=%s\r\n" % eurl(self.name))
+            data = sock['file'].readline()
 
             if not re.search(r'^ok\b', data, re.I):
                 fail("%s: '%s' %s\n" % (server, self.name, repr(data)))
@@ -73,13 +75,14 @@ class DDLock(object):
                 continue
             data = None
             try:
-                sock.send("releaselock lock=%s\r\n" % eurl(self.name))
-                data = sock.recv(1024)
+                sock['socket'].send("releaselock lock=%s\r\n" \
+                    % eurl(self.name))
+                data = sock['file'].readline()
             except:
                 pass
             if data and not re.search(r'^ok\b', data, re.I):
-                raise DDLockError("releaselock (%s): %s" % (sock.getpeername(),
-                                                            repr(data)))
+                raise DDLockError("releaselock (%s): %s" \
+                    % (sock['socket'].getpeername(), repr(data)))
             count += 1
 
         return count
@@ -117,7 +120,7 @@ class DDLockClient(object):
         port = int(host_port[1]) if len(host_port) > 1 else DEFAULT_PORT
 
         sock = self.sockcache.get("%s:%s" % (host, port))
-        if sock and sock.getpeername():
+        if sock and sock['socket'].getpeername():
             return sock
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -125,6 +128,7 @@ class DDLockClient(object):
         sock.setblocking(1)
         sock.connect((host, port))
 
+        sock = {'socket': sock, 'file': sock.makefile()}
         self.sockcache[addr] = sock
         return sock
 
