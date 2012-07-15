@@ -1,4 +1,10 @@
 
+0.1.2
+-----
+
+- fix to empty a socket after sending releaselock
+
+
 0.1.1
 -----
 
