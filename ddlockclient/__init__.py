@@ -91,10 +91,7 @@ class DDLock(object):
         return self
 
     def __exit__(self, type, val, tb):
-        try:
-            self.release()
-        except:
-            pass
+        self.release()
 
     def __del__(self):
         try:
@@ -104,12 +101,10 @@ class DDLock(object):
 
 
 class DDLockClient(object):
-    servers = []
-    sockcache = {}
-    errmsg = ""
-
     def __init__(self, servers=[]):
         self.servers = servers
+        self.sockcache = {}
+        self.errmsg = ""
 
     def get_sock_onlycache(self, addr):
         return self.sockcache.get(addr)
