@@ -137,7 +137,7 @@ class DDLockClient(object):
         except DDLockError, e:
             self.errmsg = str(e)
         except Exception, e:
-            self.errmsg = "Unknown failure"
+            self.errmsg = "Unknown failure: %s" % str(e)
 
         return lock
 
