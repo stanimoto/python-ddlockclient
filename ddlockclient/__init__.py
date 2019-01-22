@@ -121,9 +121,13 @@ class DDLockClient(object):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.setblocking(1)
-        sock.connect((host, port))
 
-        sock = {'socket': sock, 'file': sock.makefile()}
+        try:
+            sock.connect((host, port))
+            sock = {'socket': sock, 'file': sock.makefile()}
+        except socket.error:
+            return None
+
         self.sockcache[addr] = sock
         return sock
 
