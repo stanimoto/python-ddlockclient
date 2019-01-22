@@ -1,4 +1,10 @@
 
+0.1.5
+-----
+
+- fix to ignore hosts that cannot be connected to
+
+
 0.1.4
 -----
 
