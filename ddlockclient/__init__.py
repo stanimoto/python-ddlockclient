@@ -1,8 +1,11 @@
 __version__ = '0.1.5'
 
+import logging
 import socket
 import re
 import time
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_PORT = 7002
 
@@ -39,9 +42,14 @@ class DDLock(object):
                 sock = self.client.get_sock(addr)
                 if not sock:
                     continue
-                sock['socket'].send("releaselock lock=%s\r\n" \
-                    % eurl(self.name))
-                sock['file'].readline()
+                try:
+                    sock['socket'].send("releaselock lock=%s\r\n" \
+                        % eurl(self.name))
+                    sock['file'].readline()
+                except socket.error as e:
+                    logger.debug(
+                        'error releasing lock on %s in fail - %s', addr, e
+                    )
             raise DDLockError(msg)
 
         for server in servers:
@@ -54,10 +62,14 @@ class DDLock(object):
             if not sock:
                 continue
 
-            sock['socket'].send("trylock lock=%s\r\n" % eurl(self.name))
-            data = sock['file'].readline()
+            data = None
+            try:
+                sock['socket'].send("trylock lock=%s\r\n" % eurl(self.name))
+                data = sock['file'].readline()
+            except socket.error as e:
+                logger.debug('error getting lock on %s - %s', addr, e)
 
-            if not re.search(r'^ok\b', data, re.I):
+            if not (data and re.search(r'^ok\b', data, re.I)):
                 fail("%s: '%s' %s\n" % (server, self.name, repr(data)))
 
             addrs.append(addr)
@@ -78,11 +90,11 @@ class DDLock(object):
                 sock['socket'].send("releaselock lock=%s\r\n" \
                     % eurl(self.name))
                 data = sock['file'].readline()
-            except:
-                pass
+            except Exception as e:
+                logger.debug('error releasing lock on %s - %s', addr, e)
             if data and not re.search(r'^ok\b', data, re.I):
                 raise DDLockError("releaselock (%s): %s" \
-                    % (sock['socket'].getpeername(), repr(data)))
+                    % (addr, repr(data)))
             count += 1
 
         return count
@@ -110,22 +122,28 @@ class DDLockClient(object):
         return self.sockcache.get(addr)
 
     def get_sock(self, addr):
-        host_port = addr.split(':')
-        host = host_port[0]
-        port = int(host_port[1]) if len(host_port) > 1 else DEFAULT_PORT
+        host, port = addr.split(':')
 
-        sock = self.sockcache.get("%s:%s" % (host, port))
-        if sock and sock['socket'].getpeername():
-            return sock
+        sock = self.sockcache.get(addr)
+        if sock:
+            try:
+                if sock['socket'].getpeername():
+                    return sock
+            except socket.error as e:
+                logger.debug('error getting remote address %s - %s', addr, e)
+
+            sock['socket'] = None
+            del self.sockcache[addr]
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.setblocking(1)
 
         try:
-            sock.connect((host, port))
+            sock.connect((host, int(port)))
             sock = {'socket': sock, 'file': sock.makefile()}
-        except socket.error:
+        except socket.error as e:
+            logger.debug('error connecting to %s - %s', addr, e)
             return None
 
         self.sockcache[addr] = sock
