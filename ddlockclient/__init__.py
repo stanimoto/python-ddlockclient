@@ -39,8 +39,9 @@ class DDLock(object):
                 sock = self.client.get_sock(addr)
                 if not sock:
                     continue
-                sock['socket'].send("releaselock lock=%s\r\n" \
-                    % eurl(self.name))
+                sock['socket'].send(
+                    ("releaselock lock=%s\r\n" % eurl(self.name)).encode("utf-8")
+                )
                 sock['file'].readline()
             raise DDLockError(msg)
 
@@ -54,7 +55,9 @@ class DDLock(object):
             if not sock:
                 continue
 
-            sock['socket'].send("trylock lock=%s\r\n" % eurl(self.name))
+            sock['socket'].send(
+                ("trylock lock=%s\r\n" % eurl(self.name)).encode("utf-8")
+            )
             data = sock['file'].readline()
 
             if not re.search(r'^ok\b', data, re.I):
@@ -75,8 +78,9 @@ class DDLock(object):
                 continue
             data = None
             try:
-                sock['socket'].send("releaselock lock=%s\r\n" \
-                    % eurl(self.name))
+                sock['socket'].send(
+                    ("releaselock lock=%s\r\n" % eurl(self.name)).encode("utf-8")
+                )
                 data = sock['file'].readline()
             except:
                 pass
