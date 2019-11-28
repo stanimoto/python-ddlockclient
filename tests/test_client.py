@@ -42,11 +42,11 @@ class ClientTest(unittest.TestCase):
         try:
             rv = lock.release()
             self.fail("Expected an error")
-        except Exception, e:
+        except Exception as e:
             self.assertTrue(re.search('ERR didnthave',
                             str(e)),
                             "release() die if it couldn't release")
-        self.assertEquals(rv, None, "no return value")
+        self.assertEqual(rv, None, "no return value")
 
         lock2 = self._lock('test_b')
         self.assertTrue(isinstance(lock2, DDLock),
@@ -57,7 +57,7 @@ class ClientTest(unittest.TestCase):
         self.assertTrue(isinstance(lock, DDLock),
                         "Got a lock for 'test_c'")
         lock2 = self._lock('test_c')
-        self.assertEquals(lock2,
+        self.assertEqual(lock2,
                           None,
                           "Got no lock for 'test_c' again without release")
 
@@ -79,7 +79,7 @@ class ClientTest(unittest.TestCase):
                         "Got a lock for 'test'")
         try:
             raise TestError("test error")
-        except Exception, e:
+        except Exception as e:
             self.assertTrue(isinstance(e, TestError))
         finally:
             lock.release()

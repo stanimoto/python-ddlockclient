@@ -138,9 +138,9 @@ class DDLockClient(object):
         lock = None
         try:
             lock = DDLock(self, name, self.servers)
-        except DDLockError, e:
+        except DDLockError as e:
             self.errmsg = str(e)
-        except Exception, e:
+        except Exception as e:
             self.errmsg = "Unknown failure: %s" % str(e)
 
         return lock
